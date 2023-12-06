@@ -5,6 +5,7 @@ const express = require('express');
 const app = express();
 const cors = require('cors');
 const port = 3001;
+
 const bcrypt=require('bcryptjs');
 const nodemailer= require('nodemailer')
 const Dish = require('./model/dishes');
@@ -14,6 +15,7 @@ const Registro=require('./model/registro')
 
 app.use(cors())
 app.use(express.json());
+
 
 
 // Read-- Mostrar todos los platos
@@ -72,30 +74,23 @@ app.post('/registro', (req,res)=>{
 })
 
 app.post('/login',async (req,res)=>{
-    
     try{
-     
-     const user= await Registro.findOne({name:req.body.name})
-    if (user) {
-        const result =bcrypt.compareSync(req.body.password) ===user.password;
-        console.log(result);
-        if(result){
-            res.render('index')
-            console.log(result);
-        }else{
-            res.status(400).json({error:'pass not match'})
+        const usuario=await Registro.findOne({name:req.body.name})
+        if(!usuario){
+            res.send("usuario no encontrado")
+            
         }
-
-    }else{
-        res.status(400).json({error:'user exist'})
+        const match=await bcrypt.compare(req.body.password)
+            if (match) {
+                res.render("index")
+            }else{
+                req.send("password")
+            }
+    }catch{
+        res.send("wrong details")
     }
-  }catch(error){
-    res.status(400).json({error})
-  }
-
+  
 })
-
-
 
 
 
